@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>English YouTube Review</title>
+
+<style>
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI";
+    padding: 15px;
+    background: #f9f9f9;
+}
+h2 {
+    text-align: center;
+}
+input, textarea, button {
+    width: 100%;
+    padding: 10px;
+    margin: 6px 0;
+    font-size: 16px;
+}
+button {
+    background: #007AFF;
+    color: white;
+    border: none;
+    border-radius: 6px;
+}
+.card {
+    background: white;
+    padding: 12px;
+    margin-top: 10px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,.1);
+}
+.en {
+    display: none;
+    margin-top: 8px;
+}
+.mode {
+    display: flex;
+    gap: 8px;
+}
+.mode button {
+    background: #555;
+}
+.small {
+    font-size: 14px;
+    color: #666;
+}
+</style>
+</head>
+
+<body>
+
+<h2>📺 English Review</h2>
+
+<!-- 輸入區 -->
+<input id="video" placeholder="YouTube 影片名稱">
+<input id="word" placeholder="單字 / 片語">
+<textarea id="sentence" placeholder="完整英文句子"></textarea>
+<input id="meaning" placeholder="中文提示（聽寫用）">
+
+<button onclick="add()">➕ 新增（自動記錄今天）</button>
+
+<hr>
+
+<div class="mode">
+    <button onclick="showToday()">📅 今日複習</button>
+    <button onclick="showAll()">📚 全部</button>
+</div>
+
+<div id="list"></div>
+
+<script>
+let data = JSON.parse(localStorage.getItem("engMobile")) || [];
+let today = new Date().toISOString().slice(0,10);
+
+function add() {
+    data.push({
+        date: today,
+        video: video.value,
+        word: word.value,
+        sentence: sentence.value,
+        meaning: meaning.value
+    });
+    localStorage.setItem("engMobile", JSON.stringify(data));
+    video.value = word.value = sentence.value = meaning.value = "";
+    showToday();
+}
+
+function showToday() {
+    render(data.filter(d => d.date === today));
+}
+
+function showAll() {
+    render(data);
+}
+
+function render(arr) {
+    list.innerHTML = "";
+    arr.forEach((d, i) => {
+        list.innerHTML += `
+        <div class="card">
+            <div class="small">📅 ${d.date}｜🎬 ${d.video}</div>
+            <strong>${d.word}</strong><br>
+            📝 ${d.meaning}
+
+            <button onclick="toggle(${i})">✏️ 顯示英文（聽寫答案）</button>
+            <div class="en" id="en${i}">
+                ${d.sentence}
+            </div>
+        </div>`;
+    });
+}
+
+function toggle(i) {
+    const e = document.getElementById("en" + i);
+    e.style.display = e.style.display === "none" ? "block" : "none";
+}
+
+showToday();
+</script>
+
+</body>
+</html>
